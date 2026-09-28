@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: Signature-forgery---2
+    name: sahi-signature
     env: python
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app
