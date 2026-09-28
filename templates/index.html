@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>सही SIGNATURE | AI Signature Forgery Detection by Ujjawal Groups</title>
+    <!-- Google Fonts & Chart.js -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=4">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Official Brand Header Navbar -->
+        <header class="navbar">
+            <div class="brand-header-left">
+                <img src="{{ url_for('static', filename='images/sahi_signature_brand_logo.jpg') }}?v=3" alt="सही SIGNATURE Logo" class="brand-main-logo">
+                <div class="brand-titles">
+                    <div class="brand-hindi-title">सही <span class="brand-eng-title">SIGNATURE</span></div>
+                    <div class="brand-sub-tagline">AI SIGNATURE FORGERY DETECTION — VERIFY • DETECT • TRUST</div>
+                </div>
+            </div>
+            
+            <div class="brand-header-right">
+                <div class="parent-brand-tag">
+                    <span class="by-text">BY</span>
+                    <img src="{{ url_for('static', filename='images/ujjawal_parent_logo.png') }}?v=3" alt="Ujjawal Groups Parent Logo" class="parent-logo-img">
+                </div>
+                <div class="audit-brand-tag">
+                    <img src="{{ url_for('static', filename='images/ujjawal_audit_logo.png') }}?v=3" alt="Ujjawal Groups Website Audit Logo" class="audit-logo-img">
+                    <span class="badge badge-audit">Website Audit Verified</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Official Brand Banner Strip -->
+        <div class="brand-hero-strip">
+            <div class="hero-left">
+                <span class="hero-badge">🔒 Enterprise AI Security</span>
+                <h2>Biometric Verification & Intelligent Document Auditing</h2>
+                <p>Powered by Ujjawal Groups Computer Vision & Machine Learning Core</p>
+            </div>
+            <div class="hero-logos-flex">
+                <img src="{{ url_for('static', filename='images/ujjawal_parent_logo.png') }}?v=3" alt="Ujjawal Groups" class="hero-logo-item">
+                <span class="logo-divider">|</span>
+                <img src="{{ url_for('static', filename='images/ujjawal_audit_logo.png') }}?v=3" alt="Website Audit" class="hero-logo-item">
+            </div>
+        </div>
+
+        <!-- Privacy Notice Banner -->
+        <div class="privacy-banner">
+            <span class="privacy-icon">🛡️</span>
+            <div><strong>Zero-Knowledge Privacy Guarantee:</strong> All uploaded signatures are processed strictly in-memory and <strong>never saved to disk or database</strong>.</div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="main-grid">
+            <!-- Left Column: Input Methods -->
+            <div class="card input-section">
+                <div class="tab-header">
+                    <button class="tab-btn active" data-tab="upload">📁 Upload Signatures</button>
+                    <button class="tab-btn" data-tab="draw">✏️ Draw Signature</button>
+                    <button class="tab-btn" data-tab="compare">🧠 Smart Verify Workbench</button>
+                </div>
+
+                <!-- Tab 1: Single File Upload -->
+                <div id="uploadTab" class="tab-content active">
+                    <div class="info-banner-strip">
+                        ℹ️ <strong>Single Upload:</strong> Compares 1 signature image against our pre-trained enterprise dataset. To test an unknown signature against specific reference signatures of the same person, use <strong>Smart Verify</strong> below!
+                    </div>
+                    <div class="dropzone" id="dropzone">
+                        <div class="dropzone-icon">📄</div>
+                        <h3>Upload Signature Image</h3>
+                        <p>Drag & drop signature file here or click to browse</p>
+                        <span class="format-hint">Supports PNG, JPG, JPEG, or BMP (Max 5 MB)</span>
+                        <input type="file" id="fileInput" accept="image/png, image/jpeg, image/bmp" class="file-input">
+                        <button class="btn btn-secondary browse-btn" onclick="document.getElementById('fileInput').click()">Browse Files</button>
+                    </div>
+                    <div id="uploadActions" class="upload-actions">
+                        <button id="verifyUploadBtn" class="btn btn-primary btn-block" disabled>🔍 Verify Single Signature</button>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Canvas Drawing (With Single & Smart Draw Modes) -->
+                <div id="drawTab" class="tab-content">
+                    <!-- Draw Mode Selector -->
+                    <div class="draw-mode-toggle">
+                        <button id="drawModeSingle" class="draw-toggle-btn active">⚡ Single Draw Mode</button>
+                        <button id="drawModeSmart" class="draw-toggle-btn">🧠 Smart Draw Mode</button>
+                    </div>
+
+                    <!-- Smart Draw Mode Options (Hidden in Single Mode) -->
+                    <div id="smartDrawOptions" class="smart-draw-panel hidden">
+                        <div class="mode-selector mini-selector">
+                            <div class="mode-card active" data-draw-mode="genuine_only" id="drawModeGenuineOnly">
+                                <div class="mode-icon-badge">⚡</div>
+                                <h4>Option 1: Quick</h4>
+                                <p>Draw <strong>3+</strong> genuine</p>
+                            </div>
+                            <div class="mode-card" data-draw-mode="full_training" id="drawModeFullTraining">
+                                <div class="mode-icon-badge">🏆</div>
+                                <span class="best-tag">BEST</span>
+                                <h4>Option 2: Full</h4>
+                                <p>Draw <strong>3+</strong> genuine + <strong>2+</strong> forged</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="canvas-wrapper">
+                        <canvas id="sigCanvas" width="450" height="220"></canvas>
+                        <div class="canvas-hint" id="canvasHintText">Draw your signature inside the box using mouse or touch</div>
+                    </div>
+
+                    <!-- Live OpenCV Real-Time Stroke Inspector -->
+                    <div class="realtime-canvas-inspector">
+                        <div class="rt-inspector-title">⚡ Live OpenCV Pipeline:</div>
+                        <div class="rt-inspector-thumbs">
+                            <div class="rt-thumb-box" title="Real-Time Canvas Grayscale"><img id="rtGrayThumb" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" alt="Grayscale"></div>
+                            <div class="rt-thumb-box" title="Real-Time Otsu Binarization"><img id="rtBinaryThumb" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=" alt="Binary"></div>
+                        </div>
+                        <span class="rt-status" id="rtStatusText">Draw on canvas to see real-time computer vision transformations</span>
+                    </div>
+
+                    <!-- Single Draw Controls -->
+                    <div id="singleDrawControls" class="canvas-controls">
+                        <button id="clearCanvasBtn" class="btn btn-secondary">🗑️ Clear Canvas</button>
+                        <button id="verifyCanvasBtn" class="btn btn-primary">🔍 Verify Drawn Signature</button>
+                    </div>
+
+                    <!-- Smart Draw Controls -->
+                    <div id="smartDrawControls" class="canvas-controls smart-canvas-controls hidden">
+                        <button id="addGenuineDrawBtn" class="btn btn-secondary btn-green">✅ Add as Genuine Reference (<span id="genuineDrawCount">0</span>/3)</button>
+                        <button id="addForgedDrawBtn" class="btn btn-secondary btn-red hidden">❌ Add as Forged Sample (<span id="forgedDrawCount">0</span>/2)</button>
+                        <button id="clearCanvasSmartBtn" class="btn btn-secondary">🗑️ Clear Canvas</button>
+                        <button id="verifySmartDrawBtn" class="btn btn-primary btn-gold" disabled>🧠 Smart Verify Drawn Signatures</button>
+                    </div>
+
+                    <!-- Collected Drawn Samples Container -->
+                    <div id="drawnSamplesContainer" class="drawn-samples-container hidden">
+                        <div class="drawn-samples-header">
+                            <span>Collected Drawn References:</span>
+                            <span id="drawnSamplesStatus" class="drawn-status-pill">Draw & collect reference signatures above</span>
+                        </div>
+                        <div id="drawnThumbnailsFlex" class="drawn-thumbnails-flex">
+                            <div class="drawn-empty-hint">No drawn references saved yet. Draw a signature above and click "Add as Genuine Reference".</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Smart Verify Workbench -->
+                <div id="compareTab" class="tab-content">
+                    <!-- Mode Selection Toggle -->
+                    <div class="mode-selector">
+                        <div class="mode-card active" data-mode="genuine_only" id="modeGenuineOnly">
+                            <div class="mode-icon-badge">⚡</div>
+                            <h4>Option 1: Quick Verify</h4>
+                            <p>Upload <strong>3+</strong> genuine only</p>
+                            <div class="accuracy-indicator">⭐⭐⭐ Good</div>
+                        </div>
+                        <div class="mode-card" data-mode="full_training" id="modeFullTraining">
+                            <div class="mode-icon-badge">🏆</div>
+                            <span class="best-tag">BEST</span>
+                            <h4>Option 2: Full Training</h4>
+                            <p>Upload <strong>3+</strong> genuine + <strong>2+</strong> forged</p>
+                            <div class="accuracy-indicator">⭐⭐⭐⭐⭐ Best</div>
+                        </div>
+                    </div>
+
+                    <div class="recommendation-banner">
+                        🏆 <strong>Option 2 recommended</strong> — BEST results because the AI learns from both correct AND incorrect signatures, so it knows exactly what to look for.
+                    </div>
+
+                    <!-- Upload Areas -->
+                    <div class="smart-uploads">
+                        <div class="smart-upload-box genuine-box">
+                            <label class="compare-label">✅ Genuine Reference Signatures <span class="req-badge">min 3</span></label>
+                            <span class="box-desc">Upload 3 or more known genuine/correct signatures of the same person. Accepted formats: PNG, JPG, JPEG, BMP (Max 5 MB each).</span>
+                            <input type="file" id="genuineFilesInput" accept="image/png, image/jpeg, image/bmp" multiple class="file-input-inline">
+                            <div id="genuineFileCount" class="file-count-badge">0 files selected</div>
+                            <div id="genuinePreviewsFlex" class="upload-thumbnails-flex"></div>
+                        </div>
+
+                        <div class="smart-upload-box forged-box" id="forgedUploadBox" style="display: none;">
+                            <label class="compare-label">❌ Forged Signature Samples <span class="req-badge">min 2</span></label>
+                            <span class="box-desc">Upload 2 or more known FAKE/incorrect copies of the above person's signature. These help the AI learn what a forgery looks like.</span>
+                            <input type="file" id="forgedFilesInput" accept="image/png, image/jpeg, image/bmp" multiple class="file-input-inline">
+                            <div id="forgedFileCount" class="file-count-badge">0 files selected</div>
+                            <div id="forgedPreviewsFlex" class="upload-thumbnails-flex"></div>
+                        </div>
+
+                        <div class="smart-upload-box test-box">
+                            <label class="compare-label">🔍 Test Signature <span class="req-badge">1 file</span></label>
+                            <span class="box-desc">Upload the unknown signature you want to verify — is it genuine or forged?</span>
+                            <input type="file" id="smartTestFileInput" accept="image/png, image/jpeg, image/bmp" class="file-input-inline">
+                            <div id="testPreviewsFlex" class="upload-thumbnails-flex"></div>
+                        </div>
+                    </div>
+
+                    <div class="upload-actions">
+                        <button id="smartVerifyBtn" class="btn btn-primary btn-block" disabled>🧠 Smart Verify — Quick Mode</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Results & Verdict -->
+            <div class="card results-section">
+                <div class="card-title">
+                    <h2>Verification Verdict</h2>
+                    <span id="statusBadge" class="badge badge-idle">Ready to inspect</span>
+                </div>
+
+                <div id="verdictBox" class="verdict-card empty-verdict">
+                    <div class="verdict-placeholder">
+                        <div class="placeholder-icon">🔏</div>
+                        <p>Upload or draw a signature and click <strong>Verify</strong> to generate the inspection verdict.</p>
+                    </div>
+                    
+                    <div class="verdict-content hidden">
+                        <div class="verdict-main">
+                            <span id="verdictText" class="verdict-title">Genuine</span>
+                            <div class="confidence-box">
+                                <span class="confidence-label">Match Confidence</span>
+                                <span id="confidenceValue" class="confidence-number">0.0%</span>
+                            </div>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div id="confidenceBar" class="progress-bar-fill"></div>
+                        </div>
+                        <div id="methodIndicator" class="method-indicator" style="display: none;"></div>
+                    </div>
+                </div>
+
+                <!-- Feature Radar Chart -->
+                <div class="chart-container">
+                    <h3>Signature Feature Footprint</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="featureChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ujjawal Groups Website Audit & Video Showcase Section -->
+        <div class="card audit-showcase-section">
+            <div class="audit-showcase-grid">
+                <div class="audit-info-box">
+                    <div class="audit-brand-header">
+                        <img src="{{ url_for('static', filename='images/ujjawal_audit_logo.png') }}?v=3" alt="Ujjawal Groups Website Audit Logo" class="showcase-audit-logo">
+                        <div>
+                            <span class="showcase-badge">Official Video Showcase</span>
+                            <h3>Ujjawal Groups Website Audit</h3>
+                        </div>
+                    </div>
+                    <p class="audit-desc">
+                        Our flagship Website Audit platform ensures web security, compliance, performance optimization, and AI integrity across all enterprise digital products under Ujjawal Groups.
+                    </p>
+                    <div class="audit-metrics">
+                        <div class="metric-pill">🛡️ Security Audited</div>
+                        <div class="metric-pill">⚡ High Speed Verified</div>
+                        <div class="metric-pill">🤖 AI Integrity Passed</div>
+                    </div>
+                </div>
+
+                <div class="audit-video-box">
+                    <video class="audit-video-player" controls autoplay muted loop preload="auto">
+                        <source src="{{ url_for('static', filename='video/ujjawal_audit_video.mp4') }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dynamic Pipeline Preview Section -->
+        <div class="card pipeline-section">
+            <div class="section-header">
+                <h2>Step-by-Step Computer Vision Preprocessing Pipeline</h2>
+                <p>Real-time OpenCV & Scikit-Image transformation stages — see how each signature was parsed</p>
+            </div>
+            <div id="pipelineContent">
+                <div class="default-pipeline-cards">
+                    <div class="pipeline-card-stage">
+                        <div class="stage-num-badge">Stage 1</div>
+                        <h4>1. Raw RGB Input</h4>
+                        <p>High-resolution color photograph / drawn canvas stroke matrix</p>
+                    </div>
+                    <div class="pipeline-card-stage">
+                        <div class="stage-num-badge">Stage 2</div>
+                        <h4>2. Grayscale</h4>
+                        <p>Luminance reduction & single-channel intensity normalization</p>
+                    </div>
+                    <div class="pipeline-card-stage">
+                        <div class="stage-num-badge">Stage 3</div>
+                        <h4>3. Otsu Binarization</h4>
+                        <p>Adaptive thresholding & ink noise background removal</p>
+                    </div>
+                    <div class="pipeline-card-stage">
+                        <div class="stage-num-badge">Stage 4</div>
+                        <h4>4. Bounding Crop</h4>
+                        <p>Contour detection & exact signature stroke bounding box isolation</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Core Engineering & Verification Factors Showcase Section -->
+        <div class="card engine-showcase-section">
+            <div class="section-header">
+                <h2>🔬 Core Verification Engine: Computer Vision, Mathematics & AI Architecture</h2>
+                <p>Scientific parameters and algorithms engineered for tamper-proof signature authenticity</p>
+            </div>
+
+            <div class="engine-factors-grid">
+                <!-- Factor 1: OpenCV Computer Vision Core -->
+                <div class="factor-card">
+                    <div class="factor-icon-wrapper">👁️</div>
+                    <h3>OpenCV Computer Vision Core</h3>
+                    <p>Processes raw RGB imagery using <strong>Luminance Reduction</strong>, <strong>Gaussian Noise Removal</strong>, and <strong>Otsu Adaptive Binarization</strong>. Automatically extracts stroke contours and crops exact ink bounding boxes.</p>
+                    <div class="factor-tags">
+                        <span class="factor-tag">Grayscale Reduction</span>
+                        <span class="factor-tag">Otsu Thresholding</span>
+                        <span class="factor-tag">Bounding Crop</span>
+                    </div>
+                </div>
+
+                <!-- Factor 2: 9 Mathematical Geometric Metrics -->
+                <div class="factor-card">
+                    <div class="factor-icon-wrapper">📐</div>
+                    <h3>9 Mathematical & Statistical Feature Metrics</h3>
+                    <p>Calculates exact morphological traits: <strong>Aspect Ratio</strong>, <strong>Centroid Mass (X,Y)</strong>, <strong>Contour Eccentricity</strong>, <strong>Convex Solidity</strong>, <strong>Slant Skewness (X,Y)</strong>, and <strong>Stroke Kurtosis (X,Y)</strong>.</p>
+                    <div class="factor-tags">
+                        <span class="factor-tag">Aspect Ratio</span>
+                        <span class="factor-tag">Mass Center</span>
+                        <span class="factor-tag">Convex Solidity</span>
+                        <span class="factor-tag">Kurtosis & Skew</span>
+                    </div>
+                </div>
+
+                <!-- Factor 3: Dual Machine Learning Architecture -->
+                <div class="factor-card">
+                    <div class="factor-icon-wrapper">🧠</div>
+                    <h3>Dual AI & ML Verification Engine</h3>
+                    <p>Features <strong>One-Class Anomaly Detection</strong> (Euclidean + Cosine + Z-Score Dynamic Distance) for genuine-only profiles, and <strong>Random Forest + Linear SVM Ensemble</strong> for full training.</p>
+                    <div class="factor-tags">
+                        <span class="factor-tag">One-Class SVM</span>
+                        <span class="factor-tag">Euclidean & Cosine</span>
+                        <span class="factor-tag">Random Forest Ensemble</span>
+                    </div>
+                </div>
+
+                <!-- Factor 4: Enterprise Privacy & Zero-Knowledge Processing -->
+                <div class="factor-card">
+                    <div class="factor-icon-wrapper">🛡️</div>
+                    <h3>Zero-Knowledge Data Security</h3>
+                    <p>100% In-memory image array processing. Files are verified dynamically in RAM and <strong>never saved to disk or external databases</strong>. Protected by rate limiting and security headers.</p>
+                    <div class="factor-tags">
+                        <span class="factor-tag">In-Memory RAM Only</span>
+                        <span class="factor-tag">No Disk Retention</span>
+                        <span class="factor-tag">Enterprise Security</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Beginner's Guide & Instructions Section -->
+        <div class="card guide-section">
+            <div class="section-header">
+                <h2>📖 Beginner's Guide & Instructions</h2>
+                <p>Simple step-by-step guidelines — zero technical knowledge required</p>
+            </div>
+            
+            <div class="guide-grid">
+                <!-- Guide Card 1 — Smart Verify -->
+                <div class="guide-card">
+                    <div class="guide-card-header">
+                        <span class="guide-icon">🧠</span>
+                        <h3>Smart Verify (Recommended)</h3>
+                    </div>
+                    <div class="guide-step">
+                        <div class="step-badge-num">1</div>
+                        <div class="step-text">
+                            Click the <span class="code-pill">🧠 Smart Verify</span> tab.
+                        </div>
+                    </div>
+                    <div class="guide-step">
+                        <div class="step-badge-num">2</div>
+                        <div class="step-text">
+                            <strong>Choose your mode:</strong>
+                            <div class="sub-bullet">• <strong>Option 1 (Quick):</strong> Upload <strong>3+ genuine</strong> signatures only — good accuracy</div>
+                            <div class="sub-bullet">• <strong>Option 2 (Best):</strong> Upload <strong>3+ genuine + 2+ forged</strong> — best accuracy because AI learns both correct and incorrect signatures</div>
+                        </div>
+                    </div>
+                    <div class="guide-step">
+                        <div class="step-badge-num">3</div>
+                        <div class="step-text">
+                            Upload <strong>1 test signature</strong> (the unknown one you want to check).
+                        </div>
+                    </div>
+                    <div class="guide-step">
+                        <div class="step-badge-num">4</div>
+                        <div class="step-text">
+                            Click <strong>Smart Verify</strong> → see the verdict, confidence %, and how each signature was parsed.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Guide Card 2 — Quick Single Check -->
+                <div class="guide-card">
+                    <div class="guide-card-header">
+                        <span class="guide-icon">⚡</span>
+                        <h3>Quick Single Check</h3>
+                    </div>
+                    <div class="guide-step">
+                        <div class="step-badge-num">1</div>
+                        <div class="step-text">
+                            Use <span class="code-pill">📁 Single Upload</span> or <span class="code-pill">✏️ Draw Signature</span> tab.
+                        </div>
+                    </div>
+                    <div class="guide-step">
+                        <div class="step-badge-num">2</div>
+                        <div class="step-text">
+                            Upload or draw <strong>1 signature</strong> → Click <strong>Verify Signature</strong>.
+                        </div>
+                    </div>
+                    <div class="guide-step">
+                        <div class="step-badge-num">3</div>
+                        <div class="step-text">
+                            Uses the <strong>pre-trained AI model</strong> to give a quick verdict. Less accurate than Smart Verify.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Guide Card 3 — Image Requirements -->
+                <div class="guide-card">
+                    <div class="guide-card-header">
+                        <span class="guide-icon">📋</span>
+                        <h3>Image Requirements</h3>
+                    </div>
+                    <div class="guide-step">
+                        <div class="step-badge-num">✓</div>
+                        <div class="step-text">
+                            <strong>Formats:</strong> <span class="code-pill">PNG</span> <span class="code-pill">JPG</span> <span class="code-pill">JPEG</span> <span class="code-pill">BMP</span>
+                        </div>
+                    </div>
+                    <div class="guide-step">
+                        <div class="step-badge-num">✓</div>
+                        <div class="step-text">
+                            <strong>Max file size:</strong> 5 MB per image
+                        </div>
+                    </div>
+                    <div class="guide-step">
+                        <div class="step-badge-num">✓</div>
+                        <div class="step-text">
+                            <strong>Tip:</strong> Clean white background with dark ink gives the best results. Scan or photograph the signature clearly.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature Values Table -->
+        <div class="card features-table-section">
+            <div class="section-header">
+                <h2>Calculated 9 Mathematical Feature Metrics</h2>
+                <p>Detailed geometric, structural, and morphological metrics extracted from cropped ink array</p>
+            </div>
+            <div class="table-wrapper">
+                <table class="feature-table">
+                    <thead>
+                        <tr>
+                            <th>Feature Metric</th>
+                            <th>Calculated Value</th>
+                            <th>Description & Biological Significance</th>
+                        </tr>
+                    </thead>
+                    <tbody id="featureTableBody">
+                        <tr><td colspan="3" class="text-center muted">No signature analyzed yet. Upload or draw a signature to calculate features.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-brand-title">
+                    <strong>सही SIGNATURE</strong> — AI Signature Forgery Detection System
+                </div>
+                <div class="footer-copyright">
+                    All Rights Reserved © 2026 <strong>Ujjawal Groups</strong>. Integrated with Ujjawal Groups Website Audit Core.
+                </div>
+                <div class="footer-contact-links">
+                    <a href="mailto:ujjawal77.0077@gmail.com" class="contact-pill mail-pill" title="Send Email">
+                        📧 ujjawal77.0077@gmail.com
+                    </a>
+                    <a href="https://www.linkedin.com/in/ujjawalsharma0804/" target="_blank" rel="noopener" class="contact-pill linkedin-pill" title="Connect on LinkedIn">
+                        🔗 Connect on LinkedIn
+                    </a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}?v=4"></script>
+</body>
+</html>
